@@ -1,0 +1,7 @@
+﻿id,name,username,password,role,reg_no,hostel_block,room_no
+1,Hostel Warden,admin,admin123,admin,,,
+2,Test Student,251302999,test123,student,251302999,Kanchenjunga,K205
+3,Student1,251302001,2001,student,251302001,Nilgiri,N101
+4,Student2,251302003,2003,student,251302003,Kanchenjunga,K101
+5,Student4,251302004,2004,student,251302004,Nilgiri,N308
+6,Aakash,251302141,aakash123,student,251302141,Kanchenjunga,K205

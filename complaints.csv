@@ -1,0 +1,7 @@
+﻿id,student_id,student_name,room_no,category,description,status,remark,date_filed,is_private
+1,2,Test Student,K205,Plumbing / Water,Test floor 2 complaint,In Progress,Maintenance team assigned. Will inspect K205 today.,25-10-2026 00:57,0
+4,2,Test Student,K205,Plumbing / Water,Test complaint,Pending,,25-10-2026 01:26,0
+5,3,Student1,N101,Mess / Food,Mess food is not good and healthy.,Pending,,25-10-2026 01:29,0
+8,5,Student4,N308,Furniture,My bed condition is not good .. Please fix it as soon as possible,Pending,,26-10-2026 09:47,0
+9,6,Aakash,K205,Electrical,Study lamp in room flickers and trips the switch. Need inspection.,Pending,,27-10-2026 11:47,0
+10,2,Test Student,K205,Mess / Food,The mess food is not good or xyz....,Resolved,,27-10-2026 23:06,0
