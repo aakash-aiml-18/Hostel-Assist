@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Delete My Account - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="card auth-side">
+    <div class="auth-form" style="max-width:520px; margin:0 auto;">
+        <h1 class="page-title">Delete my account</h1>
+        <p class="hint">Leaving the hostel? This permanently removes your account.</p>
+
+        <div class="flash error" role="alert" style="margin-top:18px;">
+            <span class="flash-dot" aria-hidden="true"></span>
+            <span>
+                <strong>This cannot be undone.</strong><br>
+                Your account (<b>{{ student.reg_no }}</b>) and all your complaints
+                (including private notes to the warden) will be permanently deleted
+                from the database. The warden will no longer see your tickets.
+            </span>
+        </div>
+
+        <form method="post" style="margin-top:22px;"
+              onsubmit="return confirm('Permanently delete your account? This cannot be undone.');">
+            <label for="confirm">Type <b>DELETE</b> to confirm</label>
+            <input type="text" id="confirm" name="confirm" placeholder="DELETE" required
+                   autocomplete="off" style="text-transform:uppercase;">
+
+            <label for="password">Your password</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password"
+                   placeholder="Enter your password to verify it is you">
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Delete my account permanently</button>
+                <a class="btn btn-outline-light" href="{{ url_for('student_dashboard') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

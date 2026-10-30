@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ role|capitalize }} Login - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="card auth-side">
+    <div class="auth-photo" aria-hidden="true" style="background-image: url('{{ url_for('static', filename='student-login.jpg' if role == 'student' else 'warden-login.jpg') }}');">
+        <div class="auth-photo-text">
+            <strong>{{ site_name }}</strong>
+            <span>{{ site_tagline }} — secure portal for {{ 'students' if role == 'student' else 'hostel warden' }}.</span>
+        </div>
+    </div>
+    <div class="auth-form">
+        <h1 class="page-title">{{ 'Student Login' if role == 'student' else 'Warden Login' }}</h1>
+        {% if role == "student" %}
+            <p class="hint">Use the registration number you signed up with.</p>
+        {% else %}
+            <p class="hint">Restricted area. For hostel administration only.</p>
+        {% endif %}
+
+        <form method="post">
+            {% if role == "student" %}
+                <label for="reg_no">Registration number</label>
+                <input type="text" id="reg_no" name="reg_no" placeholder="e.g. 251302141" required autofocus autocomplete="username">
+            {% else %}
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="e.g. admin" required autofocus autocomplete="username">
+            {% endif %}
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Log in securely</button>
+            </div>
+        </form>
+
+        {% if role == "student" %}
+            <p class="form-foot">New student? <a href="{{ url_for('student_register') }}">Create an account</a></p>
+        {% else %}
+            <p class="form-foot">Demo credentials — username: <code>admin</code>, password: <code>admin123</code></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

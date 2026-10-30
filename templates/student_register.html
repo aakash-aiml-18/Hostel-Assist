@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Create Student Account - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="card auth-side">
+    <div class="auth-photo" aria-hidden="true">
+        <div class="auth-photo-text">
+            <strong>Join {{ site_name }}</strong>
+            <span>One account for your entire hostel stay. File and track all maintenance requests.</span>
+        </div>
+    </div>
+    <div class="auth-form">
+        <h1 class="page-title">Create your account</h1>
+        <p class="hint">Your registration number becomes your login ID.</p>
+
+        <form method="post">
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Aarav Sharma" required autofocus autocomplete="name">
+
+            <label for="reg_no">Registration number</label>
+            <input type="text" id="reg_no" name="reg_no" placeholder="e.g. 251302141" required autocomplete="username">
+
+            <div class="field-row">
+                <div>
+                    <label for="hostel_block">Select hostel</label>
+                    <select id="hostel_block" name="hostel_block" onchange="populateFloorRoom(this.value)">
+                        {% for block in blocks %}
+                            <option value="{{ block }}">{{ block }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label id="floor_label" for="floor">Floor</label>
+                    <select id="floor" name="floor" onchange="populateRoom()" style="width:auto; min-width:100px;">
+                        <option value="">Choose a floor</option>
+                        <option value="1">Floor 1</option>
+                        <option value="2">Floor 2</option>
+                        <option value="3">Floor 3</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="room_label" for="room_no">Room number</label>
+                    <input type="text" id="room_no" name="room_no" placeholder="e.g. K205">
+                    <div id="room_status" style="margin-top:4px; font-size:0.85rem; font-weight:600;"></div>
+                </div>
+            </div>
+            <script>
+                function populateFloorRoom(hostel) {
+                    var floorSelect = document.getElementById('floor');
+                    if (floorSelect) {
+                        floorSelect.innerHTML = "<option value="">Choose a floor</option><option value="1">Floor 1</option><option value="2">Floor 2</option><option value="3">Floor 3</option>";
+                        populateRoom();
+                    }
+                }
+
+                function populateRoom() {
+                    var hostelSelect = document.getElementById('hostel_block');
+                    var floorSelect = document.getElementById('floor');
+                    var roomInput = document.getElementById('room_no');
+                    var roomStatus = document.getElementById('room_status');
+                    var floorLabel = document.getElementById('floor_label');
+                    var roomLabel = document.getElementById('room_label');
+
+                    if (!hostelSelect || !floorSelect || !roomInput || !roomStatus) return;
+
+                    var hostel = hostelSelect.value;
+                    var floor = floorSelect.value;
+
+                    if (!hostel || !floor) {
+                        roomInput.value = "";
+                        roomStatus.textContent = "Select a floor first";
+                        roomStatus.className = "input-error";
+                        return;
+                    }
+
+                    if (floorLabel) floorLabel.textContent = "Floor " + floor;
+
+                    var rooms = hostel === "Kanchenjunga" ? {
+                        "1": ["K101","K102","K103","K104","K105","K106","K107","K108","K109","K110"],
+                        "2": ["K201","K202","K203","K204","K205","K206","K207","K208","K209","K210"],
+                        "3": ["K301","K302","K303","K304","K305","K306","K307","K308","K309","K310"]
+                    } : {
+                        "1": ["N101","N102","N103","N104","N105","N106","N107","N108","N109","N110"],
+                        "2": ["N201","N202","N203","N204","N205","N206","N207","N208","N209","N210"],
+                        "3": ["N301","N302","N303","N304","N305","N306","N307","N308","N309","N310"]
+                    };
+
+                    var validRooms = rooms[floor] || [];
+                    var room = roomInput.value.trim();
+
+                    if (validRooms.includes(room)) {
+                        roomStatus.textContent = "✓ Valid room";
+                        roomStatus.className = "input-success";
+                    } else if (room) {
+                        roomStatus.textContent = "✗ Invalid room number";
+                        roomStatus.className = "input-error";
+                    } else {
+                        roomStatus.textContent = "Enter room number";
+                        roomStatus.className = "";
+                    }
+                }
+
+                // Run when page loads
+                window.onload = function() {
+                    var hostelSelect = document.getElementById('hostel_block');
+                    var floorSelect = document.getElementById('floor');
+                    if (hostelSelect && hostelSelect.value) {
+                        populateFloorRoom(hostelSelect.value);
+                    }
+                };
+            </script>
+
+            <label for="password">Set password</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password">
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-gold">Create account</button>
+            </div>
+        </form>
+
+        <p class="form-foot">Already have an account? <a href="{{ url_for('student_login') }}">Log in</a></p>
+    </div>
+</div>
+{% endblock %}

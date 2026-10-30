@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}My Complaints - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="profile-bar">
+    <div>
+        <h1>My Complaints</h1>
+        <p>{{ student.name }} &bull; {{ student.hostel_block }}, Room {{ student.room_no }} &bull; Reg. {{ student.reg_no }}</p>
+    </div>
+    <div style="display:flex; gap:18px; align-items:center; flex-wrap:wrap;">
+        <div class="mini-stats">
+            <div><b>{{ complaints|length }}</b><span>Total</span></div>
+            <div><b>{{ complaints|selectattr('status','equalto','Pending')|list|length }}</b><span>Pending</span></div>
+            <div><b>{{ complaints|selectattr('status','equalto','Resolved')|list|length }}</b><span>Resolved</span></div>
+        </div>
+        <a class="btn btn-gold btn-small" href="{{ url_for('file_complaint') }}">+ New Complaint</a>
+        <a class="btn btn-small btn-danger" href="{{ url_for('student_delete_account') }}">Leave Hostel</a>
+    </div>
+</div>
+
+{% if complaints %}
+<section class="cards" aria-label="Your complaints">
+    {% for c in complaints %}
+    <article class="complaint-card {{ 'is-in-progress' if c.status == 'In Progress' else 'is-resolved' if c.status == 'Resolved' else '' }}">
+        <div class="card-top">
+            <span class="ticket">Ticket #{{ c.id }}</span>
+            <span class="date">{{ c.date_filed }}</span>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <h2 style="margin:0;">{{ c.category }}</h2>
+            {% if c.is_private %}<span class="private-badge">🔒 Private</span>{% endif %}
+        </div>
+        <p class="desc">{{ c.description }}</p>
+        <p class="meta">Room {{ c.room_no }} &bull; {{ c.category }}</p>
+
+        {% if c.remark %}
+        <p class="warden-note"><strong>Warden's remark:</strong> {{ c.remark }}</p>
+        {% endif %}
+
+        <div class="card-foot">
+            <span class="pill {{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span>
+            {% if c.status == "Pending" %}
+            <form method="post" action="{{ url_for('student_delete', complaint_id=c.id) }}"
+                  onsubmit="return confirm('Withdraw complaint #{{ c.id }}?');">
+                <button type="submit" class="btn btn-small btn-danger">Withdraw</button>
+            </form>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% else %}
+<div class="empty">
+    <h2>No complaints yet</h2>
+    <p>File your first maintenance request and track it here with live status.</p>
+    <a class="btn btn-primary" href="{{ url_for('file_complaint') }}">File a complaint</a>
+</div>
+{% endif %}
+{% endblock %}

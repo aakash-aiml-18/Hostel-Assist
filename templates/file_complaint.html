@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}File a Complaint - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="form-wrap wide">
+    <div class="card card-gold">
+        <h1 class="page-title">File a new request</h1>
+        <p class="hint">Maintenance complaint or personal issue — hostel, room and exact details help the warden resolve it faster. Ticket ID is generated automatically.</p>
+
+        <form method="post">
+            <div class="field-row">
+                <div>
+                    <label for="room_no">Room number</label>
+                    <input type="text" id="room_no" name="room_no" value="{{ student.room_no }}" placeholder="e.g. K205">
+                    <div id="room_status" style="margin-top:4px; font-size:0.85rem; font-weight:600;"></div>
+                </div>
+                <div>
+                    <label for="category">Service category</label>
+                    <select id="category" name="category">
+                        {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="field-row">
+                <div>
+                    <label for="floor">Floor</label>
+                    <select id="floor" name="floor" style="min-width:100px;" onchange="populateRoom()">
+                        <option value="">Choose a floor</option>
+                        <option value="1">Floor 1</option>
+                        <option value="2">Floor 2</option>
+                        <option value="3">Floor 3</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="room_label" for="room_no">Room number</label>
+                    <input type="text" id="room_no_display" name="room_no_display" placeholder="e.g. K205" style="min-width:120px; display:none;">
+                </div>
+            </div>
+            <script>
+                function populateRoom() {
+                    var hostel = "{{ student.hostel_block }}";
+                    var floorSelect = document.getElementById('floor');
+                    var roomInput = document.getElementById('room_no');
+                    var roomDisplay = document.getElementById('room_no_display');
+                    var roomStatus = document.getElementById('room_status');
+                    var floorLabel = document.getElementById('floor_label');
+
+                    if (!floorSelect || !roomInput || !roomStatus) return;
+
+                    var floor = floorSelect.value;
+                    var room = roomInput.value.trim();
+
+                    if (!hostel || !floor) {
+                        roomStatus.textContent = "Select a floor first";
+                        roomStatus.className = "input-error";
+                        return;
+                    }
+
+                    if (floorLabel) floorLabel.textContent = "Floor " + floor;
+
+                    var rooms = hostel === "Kanchenjunga" ? {
+                        "1": ["K101","K102","K103","K104","K105","K106","K107","K108","K109","K110"],
+                        "2": ["K201","K202","K203","K204","K205","K206","K207","K208","K209","K210"],
+                        "3": ["K301","K302","K303","K304","K305","K306","K307","K308","K309","K310"]
+                    } : {
+                        "1": ["N101","N102","N103","N104","N105","N106","N107","N108","N109","N110"],
+                        "2": ["N201","N202","N203","N204","N205","N206","N207","N208","N209","N210"],
+                        "3": ["N301","N302","N303","N304","N305","N306","N307","N308","N309","N310"]
+                    };
+
+                    var validRooms = rooms[floor] || [];
+
+                    if (validRooms.includes(room)) {
+                        roomStatus.textContent = "✓ Valid room";
+                        roomStatus.className = "input-success";
+                        roomDisplay.value = room;
+                    } else if (room) {
+                        roomStatus.textContent = "✗ Invalid room number";
+                        roomStatus.className = "input-error";
+                    } else {
+                        roomStatus.textContent = "Enter room number";
+                        roomStatus.className = "";
+                    }
+                }
+            </script>
+
+            <label for="description">Describe the problem</label>
+            <textarea id="description" name="description" rows="5" required
+                      placeholder="e.g. Ceiling fan in Room 204, Kanchenjunga Hostel stopped working. OR personal room / roommate issue you want the warden to know."></textarea>
+
+            <div class="privacy-box">
+                <label class="check-line">
+                    <input type="checkbox" name="is_private" value="1">
+                    <span><strong>This is a personal issue</strong> (room, roommate, or anything private) — send it directly to the warden.</span>
+                </label>
+                <p class="privacy-hint">Personal notes are visible only to you and the warden, marked with a Private tag.</p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit request</button>
+                <a href="{{ url_for('student_dashboard') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

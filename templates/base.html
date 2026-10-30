@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_name }}{% endblock %} | {{ site_name }}</title>
+    <meta name="description" content="{{ site_name }} - {{ site_tagline }}. File and track hostel maintenance complaints online.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body class="{% if request.endpoint in ['home','student_login','student_register','admin_login'] %}has-bg{% elif request.endpoint in ['student_dashboard','admin_dashboard'] %}has-dash-bg{% else %}no-bg{% endif %}">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Brand + navigation floating directly over the background (no header bar) -->
+    <div class="top-overlay">
+        <a class="brand" href="{{ url_for('home') }}" aria-label="{{ site_name }} home">
+            <span class="brand-mark" aria-hidden="true">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="">
+            </span>
+            <span class="brand-text">
+                <span class="brand-name">{{ site_name }}</span>
+                <span class="brand-sub">{{ site_tagline }}</span>
+            </span>
+        </a>
+
+        <nav class="nav" aria-label="Main">
+            {% if request.endpoint != 'home' %}
+                <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            {% endif %}
+
+            {% if logged_in_user %}
+                <a class="nav-link nav-cta" href="{{ url_for(logged_in_user.get_dashboard_route()) }}">
+                    {{ 'My Complaints' if logged_in_user.get_role() == 'student' else 'Register' }}
+                </a>
+                <span class="user-chip" title="{{ logged_in_user.name }}">
+                    <span class="user-avatar" aria-hidden="true">{{ logged_in_user.name[0]|upper }}</span>
+                    <span class="user-name">{{ logged_in_user.name }}</span>
+                </span>
+                <a class="nav-link" href="{{ url_for('logout') }}">Log out</a>
+            {% else %}
+                {% if request.endpoint not in ['student_login', 'student_register', 'student_dashboard', 'file_complaint'] %}
+                    <div class="white-box">
+                        <a class="nav-link white-link" href="{{ url_for('student_login') }}">Student Login</a>
+                    </div>
+                {% endif %}
+                {% if request.endpoint not in ['admin_login', 'admin_dashboard'] %}
+                    <div class="white-box">
+                        <a class="nav-link white-link" href="{{ url_for('admin_login') }}">Warden Login</a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </nav>
+    </div>
+
+    <main class="container" id="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">
+                    <span class="flash-dot" aria-hidden="true"></span>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <strong>{{ site_name }}</strong>
+                <span>{{ site_tagline }}</span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

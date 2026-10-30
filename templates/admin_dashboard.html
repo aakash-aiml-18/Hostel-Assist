@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Complaint Register - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Complaint Register</h1>
+        <p>Central maintenance ledger — Kanchenjunga Hostel &amp; Nilgiri Hostel, newest first. Welcome, {{ admin.name }}.</p>
+    </div>
+</div>
+
+<section class="stat-grid" aria-label="Complaint counts">
+    <div class="stat">
+        <b>{{ counts["Total"] }}</b>
+        <span>Total Requests</span>
+    </div>
+    <div class="stat pending">
+        <b>{{ counts["Pending"] }}</b>
+        <span>Pending</span>
+    </div>
+    <div class="stat progress">
+        <b>{{ counts["In Progress"] }}</b>
+        <span>In Progress</span>
+    </div>
+    <div class="stat resolved">
+        <b>{{ counts["Resolved"] }}</b>
+        <span>Resolved</span>
+    </div>
+</section>
+
+{% if chart %}
+<section class="chart-card" aria-label="Complaints by category">
+    <div class="chart-head">
+        <h2>Complaints by Category</h2>
+        <p>Comparison of number of complaints filed in each service category.</p>
+    </div>
+    <div class="chart-body">
+        <div id="categoryPie" class="category-pie" role="img" aria-label="3D pie chart of complaints by category"></div>
+    </div>
+</section>
+
+<script src="{{ url_for('static', filename='vendor/highcharts.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/highcharts-3d.js') }}"></script>
+<script>
+    (function () {
+        var pieData = {{ chart|tojson }};
+        var points = pieData.map(function (item) {
+            return {
+                name: item.category,
+                y: item.count,
+                color: item.color,
+                sliced: item.count === pieData[0].count
+            };
+        });
+
+        Highcharts.chart('categoryPie', {
+            chart: {
+                type: 'pie',
+                backgroundColor: 'transparent',
+                options3d: {
+                    enabled: true,
+                    alpha: 52,
+                    beta: 0,
+                    depth: 55,
+                    viewDistance: 30
+                }
+            },
+            title: { text: null },
+            credits: { enabled: false },
+            tooltip: {
+                pointFormat: '<b>{point.y}</b> complaint(s) &mdash; <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 55,
+                    showInLegend: false,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    dataLabels: {
+                        enabled: true,
+                        connectorWidth: 1.8,
+                        connectorColor: '#8b9aab',
+                        distance: 34,
+                        format: '<b>{point.name}</b><br/>{point.y} ({point.percentage:.1f}%)',
+                        style: {
+                            color: '#16242f',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            textOutline: 'none'
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Complaints',
+                colorByPoint: true,
+                data: points
+            }]
+        });
+    })();
+</script>
+{% endif %}
+
+<section class="toolbar">
+    <div class="filter-group">
+        <!-- status filter -->
+        <form method="get">
+            <div>
+                <label for="status">Filter by status</label>
+                <select id="status" name="status" onchange="this.form.submit()">
+                    <option value="">All complaints</option>
+                    {% for s in statuses %}
+                        <option value="{{ s }}" {% if s == selected_status %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <!-- category filter -->
+        <form method="get">
+            <div>
+                <label for="category">Filter by category</label>
+                <select id="category" name="category" onchange="this.form.submit()">
+                    <option value="">All categories</option>
+                    {% for c in categories %}
+                        <option value="{{ c }}" {% if c == selected_category %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <!-- hostel filter -->
+        <form method="get">
+            <div>
+                <label for="hostel">Filter by hostel</label>
+                <select id="hostel" name="hostel" onchange="this.form.submit()">
+                    <option value="">All hostels</option>
+                    {% for h in hostels %}
+                        <option value="{{ h }}" {% if h == selected_hostel %}selected{% endif %}>{{ h }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <!-- floor filter -->
+        <form method="get">
+            <div>
+                <label for="floor">Filter by floor</label>
+                <select id="floor" name="floor" onchange="this.form.submit()">
+                    <option value="">All floors</option>
+                    {% for f in floors %}
+                        <option value="{{ f }}" {% if f == selected_floor %}selected{% endif %}>{{ f }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <form method="get">
+            <div>
+                <label for="month">Filter by date</label>
+                <select id="month" name="month" onchange="this.form.submit()">
+                    <option value="">All months</option>
+                    {% for m in months %}
+                        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+                <select id="year" name="year" onchange="this.form.submit()" style="margin-left:6px;">
+                    <option value="">All years</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <!-- ticket id search -->
+        <form method="get">
+            <div>
+                <label for="search_id">Search by Ticket ID</label>
+                <input type="text" id="search_id" name="search_id" value="{{ search_id }}" placeholder="e.g. 12" inputmode="numeric">
+            </div>
+            <button type="submit" class="btn btn-small btn-primary">Search</button>
+            {% if search_id or selected_status or selected_category or selected_hostel or selected_month or selected_year %}
+                <a class="btn btn-small btn-ghost" href="{{ url_for('admin_dashboard') }}">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</section>
+
+{% if complaints %}
+<div class="table-wrap">
+    <table class="ledger">
+        <thead>
+            <tr>
+                <th>Ticket</th>
+                <th>Filed On</th>
+                <th>Day Submitted</th>
+                <th>Student</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Update &amp; Remark</th>
+                <th><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Delete</span></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for c in complaints %}
+            <tr>
+                <td class="num">#{{ c.id }}</td>
+                <td class="nowrap">{% set when = c.date_filed.split(' ') %}{{ when[0] }}{% if when|length > 1 %}<span class="sub">{{ when[1] }}</span>{% endif %}</td>
+                <td class="nowrap">
+                    <span class="pill sm pending">{{ when[0] }}</span>
+                </td>
+                <td>{{ c.student_name }}<span class="sub">Room {{ c.room_no }}</span></td>
+                <td class="nowrap">{{ c.category }}<span class="category-badge">{{ c.category }}</span>{% if c.is_private %}<span class="sub" style="color:#9a6b0f; font-weight:700;">🔒 Private to warden</span>{% endif %}</td>
+                <td class="problem">{{ c.description }}</td>
+                <td><span class="pill sm {{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span></td>
+                <td>
+                    <form method="post" action="{{ url_for('admin_update', complaint_id=c.id) }}" class="update-form">
+                        <select name="status" aria-label="Status for ticket {{ c.id }}">
+                            {% for s in statuses %}
+                                <option value="{{ s }}" {% if s == c.status %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="remark" value="{{ c.remark }}"
+                               placeholder="Remark for student" aria-label="Remark for ticket {{ c.id }}">
+                        <button type="submit" class="btn btn-small btn-primary">Save</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="{{ url_for('admin_delete', complaint_id=c.id) }}"
+                          onsubmit="return confirm('Delete ticket #{{ c.id }}?');">
+                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty">
+    <h2>No records found</h2>
+    <p>Try a different status filter, or clear the search.</p>
+    <a class="btn btn-small btn-primary" href="{{ url_for('admin_dashboard') }}">Show all complaints</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_name }} - {{ site_tagline }}{% endblock %}
+
+{% block content %}
+<!-- ============ Hero + Student card side by side ============ -->
+<div class="home-split">
+    <section class="welcome-box has-photo">
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="hero-inner">
+            <div class="hero-badge">
+                <span class="pulse" aria-hidden="true"></span>
+                Official Hostel Maintenance System &bull; Kanchenjunga &amp; Nilgiri
+            </div>
+            <h1>Hostel issues,<br>resolved without running to the warden's office.</h1>
+            <p class="lead">
+                File complaints for plumbing, electrical, mess, Wi-Fi and more &mdash; or personal issues
+                directly to the warden. Track every request from
+                <strong>Pending &rarr; In Progress &rarr; Resolved</strong> &mdash; right from your room.
+            </p>
+            {% if logged_in_user %}
+            <p class="welcome-user">Logged in as <strong>{{ logged_in_user.name }}</strong>.</p>
+            <div class="btn-row hero-cta">
+                <a class="btn btn-gold" href="{{ url_for(logged_in_user.get_dashboard_route()) }}">
+                    {{ 'Open my complaints' if logged_in_user.get_role() == 'student' else 'Open complaint register' }}
+                </a>
+                <a class="btn btn-outline-light" href="{{ url_for('logout') }}">Log out</a>
+            </div>
+            {% else %}
+            <div class="btn-row hero-cta">
+                <a class="btn btn-gold" href="{{ url_for('student_register') }}">File a Complaint</a>
+                <a class="btn btn-outline-light" href="{{ url_for('student_login') }}">Track Status</a>
+            </div>
+            <p class="hero-note">New here? Registration takes 30 seconds &mdash; just your Reg. No. and room number.</p>
+            {% endif %}
+            <dl class="hero-stats">
+                <div><dt>24&ndash;48 hrs</dt><dd>Avg. response target</dd></div>
+                <div><dt>9</dt><dd>Service categories</dd></div>
+                <div><dt>100%</dt><dd>Trackable online</dd></div>
+            </dl>
+        </div>
+    </section>
+
+    <section class="side-card">
+        <article class="portal-card with-photo stacked">
+            <div class="portal-photo" aria-hidden="true"></div>
+            <div class="portal-body">
+                <div class="portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1.2-3.4 4-5 7.5-5s6.3 1.6 7.5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <h2>Student Portal</h2>
+                <p class="portal-desc">Login to file maintenance complaints or personal issues directly to the warden, and track them online.</p>
+                <div class="btn-row">
+                    <a class="btn btn-primary" href="{{ url_for('student_login') }}">Student Login</a>
+                    <a class="btn btn-ghost" href="{{ url_for('student_register') }}">Create Account</a>
+                </div>
+            </div>
+        </article>
+    </section>
+</div>
+{% endblock %}
